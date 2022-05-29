@@ -1,0 +1,46 @@
+plugins {
+    id 'java-library'
+    id 'java-gradle-plugin'
+    id 'eclipse'
+    id 'maven-publish'
+}
+
+java.sourceCompatibility = 17
+java.targetCompatibility = 17
+
+group = 'com.github.batmanatorul'
+
+String ver = "0.1.1"
+
+sourceSets {
+    api
+}
+
+dependencies {
+    implementation(sourceSets.api.output)
+}
+
+task testJar(type: Jar, dependsOn: jar) {
+    baseName 'test'
+    from sourceSets.test.output
+}
+
+task runTest(type: JavaExec, dependsOn: testJar) {
+    classpath = files('build/libs/JavaPack-$ver.jar')
+    workingDir("build/libs")
+    args("test")
+}
+
+task apiJar(type: Jar) {
+    baseName "JavaPack-api-$ver"
+    from sourceSets.api.output
+}
+
+jar {
+    dependsOn(apiJar)
+    from sourceSets.api.output
+    baseName "JavaPack-$ver"
+    manifest {
+        attributes 'Main-Class': 'com.batmanatorul.datapack.Main'
+    }
+}
